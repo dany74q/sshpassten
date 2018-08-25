@@ -5,15 +5,12 @@
 #include <cstdlib>
 #include <unistd.h>
 #include <fcntl.h>
-#include <signal.h>
 #include <sstream>
 #include <iostream>
 #include <memory>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <chrono>
-#include <thread>
-#include <signal.h>
+#include <array>
 
 namespace sshpassten {
 namespace detail {
@@ -26,16 +23,18 @@ int ParentSSHTTYRedirector::redirect(const std::string& password, int fileDescri
 	int status = 0;
 	timespec timeout {1L, 0L};
 	
+	// Stop redirecting after child process has been killed
 	while (!waitpid(childPID_, &status, WNOHANG)) {
 		FileDescriptorSet readFileDescriptor { fileDescriptor };
 		int selret = pselect(fileDescriptor + 1, &readFileDescriptor, nullptr, nullptr, &timeout, nullptr);
 
 		if (selret > 0) {
-			char buff[8192] = { '\0' };
-			auto bytesRead = read(fileDescriptor, buff, sizeof(buff) - 1);
+			std::array<char, 8192> buff = { '\0' };
+			auto bytesRead = read(fileDescriptor, &buff, buff.size() - 1);
 			
 			if (bytesRead != -1 && bytesRead > 0) {
-				std::string buffStr { buff };
+				buff[bytesRead] = '\0';
+				std::string buffStr { std::begin(buff), std::end(buff) };
 
 				if (buffStr.find(PASSWORD_PROMPT) != std::string::npos) {
 					sendBuffer(fileDescriptor, password);
@@ -62,10 +61,10 @@ void ParentSSHTTYRedirector::handleSSHPromprt(const int fileDescriptor) const {
 	std::cout << std::endl << SSH_PROMPT << " ";
 					
 	char* line = nullptr;
-	std::unique_ptr<char> lineOwner { line };
 	size_t linesize = 0;
 
 	auto lineSize = getline(&line, &linesize, stdin);
+	std::unique_ptr<char, decltype(std::free)*> lineOwner{ line, &std::free };
 
 	if (lineSize != -1) {
 		sendBuffer(fileDescriptor, line);

@@ -8,6 +8,9 @@ namespace sshpassten {
 namespace detail {
 inline namespace v1 {
 
+/*
+	This object will create and manage the lifecycle of a master-slave pair of PTY-s.
+*/
 struct PseudoTerminalManager {
 	static const std::string PSEUDO_TERMINAL_CREATOR_DEVICE;
 

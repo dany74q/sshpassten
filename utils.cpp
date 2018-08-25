@@ -1,16 +1,6 @@
 #include "utils.hpp"
-#include <memory>
-#include <iostream>
-#include <sstream>
-#include <string>
-#include <exception>
-#include <stdexcept>
-
-#include <cstdio>
-#include <cstdlib>
 #include <unistd.h>
 #include <fcntl.h>
-#include <signal.h>
 
 
 namespace sshpassten {
