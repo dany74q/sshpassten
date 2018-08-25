@@ -24,19 +24,19 @@ inline namespace v1 {
 
 	A simple diagram showing the I/O flow:
 
-	    stdout															            stdin
-	      ▲																		      |
-		  |																		      |
-		  |                                     |                                    ◀-
+	    stdout									 stdin						            stdin
+	      ▲										   |								      |
+	      |										   |								      |
+	      |                                     |                                    ◀-
 	 ------------              -----------      |       -----------              -----------
 	|            |            |           |     |	   |           |            |           |
 	|   Parent   |<---------->|   Master  |<---------->|   Slave   |<---------->|   Child   |
-	|            |            |    PTY    |		|	   |    PTY    |            |   (SSH)   |
-	 ------------              -----------		|	    -----------              -----------
-	       -▶                                   |                                     |
-		  |                                                                           |
-		  |                                                                           ▼
-		stdin                                                                       stdout
+	|            |            |    PTY    |	    |	   |    PTY    |            |   (SSH)   |
+	 ------------              -----------      |       -----------              -----------
+	        -▶                                 |                                     |
+	       |                                                                          |
+	       |                                                                          ▼
+             stdin                                                                      stdout
 	
 	Support for handling the SSH prompt was added as well.
 */
