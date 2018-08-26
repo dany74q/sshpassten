@@ -15,53 +15,53 @@ inline namespace v1 {
 
 
 int SSHPassten::run(int argc, char** argv) {
-	parseArgs(argc, argv);
+    parseArgs(argc, argv);
 
-	manager_ = std::make_unique<PseudoTerminalManager>();
-	TTYResizeSignalBinder::bindSignal(manager_->getMasterFileDescriptor());
+    manager_ = std::make_unique<PseudoTerminalManager>();
+    TTYResizeSignalBinder::bindSignal(manager_->getMasterFileDescriptor());
 
-	childPID_ = fork();
-	if (!childPID_) {
-		return childHandler();
-	}
+    childPID_ = fork();
+    if (!childPID_) {
+        return childHandler();
+    }
 
-	return parentHandler();
+    return parentHandler();
 }
 
 void SSHPassten::parseArgs(int argc, char** argv) {
-	args::ArgumentParser argParser("parser");
-	args::HelpFlag help(argParser, "help", "Display this help menu", {'h', "help"});
+    args::ArgumentParser argParser("parser");
+    args::HelpFlag help(argParser, "help", "Display this help menu", {'h', "help"});
 
-	args::ValueFlag<std::string> password(argParser, "password", "Pass the SSH password here", {'p'});
-	args::PositionalList<std::string> command(argParser, "command", "The command to be executed");
+    args::ValueFlag<std::string> password(argParser, "password", "Pass the SSH password here", {'p'});
+    args::PositionalList<std::string> command(argParser, "command", "The command to be executed");
 
-	argParser.ParseCLI(argc, argv);
+    argParser.ParseCLI(argc, argv);
 
-	if (!password || !command) {
-		std::cout << argParser << std::endl;
-		throw std::runtime_error("Failed parsing args");
-	}
+    if (!password || !command) {
+        std::cout << argParser << std::endl;
+        throw std::runtime_error("Failed parsing args");
+    }
 
-	password_ = args::get(password);
-	auto commandContainer = args::get(command);
-	std::copy(std::begin(commandContainer), std::end(commandContainer), std::back_inserter(command_));
+    password_ = args::get(password);
+    auto commandContainer = args::get(command);
+    std::copy(std::begin(commandContainer), std::end(commandContainer), std::back_inserter(command_));
 }
 
 int SSHPassten::childHandler() const {
-	TTYAttacher::attachTo(manager_->getSlavePTYPath());
+    TTYAttacher::attachTo(manager_->getSlavePTYPath());
 
-	std::vector<const char*> commandVector {};
-	std::transform(std::begin(command_), std::end(command_), std::back_inserter(commandVector), 
-		[] (const std::string& str) -> const char* { return str.c_str(); }
-	);
-	commandVector.emplace_back(nullptr);
-	
-	return checkErrno(execvp, commandVector.front(), const_cast<char**>(commandVector.data()));
+    std::vector<const char*> commandVector {};
+    std::transform(std::begin(command_), std::end(command_), std::back_inserter(commandVector), 
+        [] (const std::string& str) -> const char* { return str.c_str(); }
+    );
+    commandVector.emplace_back(nullptr);
+    
+    return checkErrno(execvp, commandVector.front(), const_cast<char**>(commandVector.data()));
 }
 
 int SSHPassten::parentHandler() const {
-	ParentSSHTTYRedirector parentRedirector { childPID_ };
-	return parentRedirector.redirect(password_, manager_->getMasterFileDescriptor());
+    ParentSSHTTYRedirector parentRedirector { childPID_ };
+    return parentRedirector.redirect(password_, manager_->getMasterFileDescriptor());
 }
 
 }

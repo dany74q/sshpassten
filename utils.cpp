@@ -11,10 +11,10 @@ File::File(const std::string& path, size_t flags) : fileDescriptor_{ checkErrno(
 }
 
 File::~File() noexcept {
-	if (fileDescriptor_ != -1) {
-		::close(fileDescriptor_);
-		fileDescriptor_ = -1;
-	}
+    if (fileDescriptor_ != -1) {
+        ::close(fileDescriptor_);
+        fileDescriptor_ = -1;
+    }
 }
 
 }

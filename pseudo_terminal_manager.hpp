@@ -9,15 +9,15 @@ namespace detail {
 inline namespace v1 {
 
 /*
-	This object will create and manage the lifecycle of a master-slave pair of PTY-s.
+    This object will create and manage the lifecycle of a master-slave pair of PTY-s.
 */
 struct PseudoTerminalManager {
-	static const std::string PSEUDO_TERMINAL_CREATOR_DEVICE;
+    static const std::string PSEUDO_TERMINAL_CREATOR_DEVICE;
 
-	PseudoTerminalManager();
-	virtual ~PseudoTerminalManager() noexcept = default;
+    PseudoTerminalManager();
+    virtual ~PseudoTerminalManager() noexcept = default;
 
-	std::string getSlavePTYPath() const;
+    std::string getSlavePTYPath() const;
     
     int getMasterFileDescriptor() const noexcept {
         return masterFileDescriptor_->getFileDescriptor();
@@ -28,9 +28,9 @@ struct PseudoTerminalManager {
     }
 
 private:
-	std::unique_ptr<File> masterFileDescriptor_;
-	std::unique_ptr<File> slaveFileDescriptor_;
-	std::string slavePTYPath_;
+    std::unique_ptr<File> masterFileDescriptor_;
+    std::unique_ptr<File> slaveFileDescriptor_;
+    std::string slavePTYPath_;
 };
 
 }

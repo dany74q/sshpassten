@@ -13,11 +13,11 @@ namespace detail {
 inline namespace v1 {
 
 /* 
-	A Header-only resize TTY resize (SIGWINCH) binder, which binds signals from 
-	a one TTY (or PTY) to a second TTY (or PTY).
+    A Header-only resize TTY resize (SIGWINCH) binder, which binds signals from 
+    a one TTY (or PTY) to a second TTY (or PTY).
 
-	What this means is that for every window resize signal the first TTY gets,
-	we'll fire a callback which will signal the second TTY with to resize to the same dimentions.
+    What this means is that for every window resize signal the first TTY gets,
+    we'll fire a callback which will signal the second TTY with to resize to the same dimentions.
 */
 struct TTYResizeSignalBinder {
 private:
@@ -25,19 +25,19 @@ private:
     static std::unique_ptr<File> currentTTY_;
     static int bindResizeToFD_;
     static bool signalSet_;
-	static std::mutex signalLock_;
+    static std::mutex signalLock_;
 
 public:
     TTYResizeSignalBinder() = delete;
     ~TTYResizeSignalBinder() = default;
 
-	static void bindSignal(int bindResizeToFD) {
-		currentTTY_ = std::make_unique<File>(CURRENT_TTY_PATH, 0);
-		bindSignal(currentTTY_->getFileDescriptor(), bindResizeToFD);
-	}
+    static void bindSignal(int bindResizeToFD) {
+        currentTTY_ = std::make_unique<File>(CURRENT_TTY_PATH, 0);
+        bindSignal(currentTTY_->getFileDescriptor(), bindResizeToFD);
+    }
 
     static void bindSignal(int bindResizeFromFD, int bindResizeToFD) {
-		std::lock_guard<std::mutex> lock(signalLock_);
+        std::lock_guard<std::mutex> lock(signalLock_);
 
         if (!signalSet_) {
             signalSet_ = true;
